@@ -61,6 +61,30 @@ class App {
         }
         // Initialize music button state
         this.updateMusicButton();
+
+        // Attempt autoplay (may be blocked by browser)
+        this.tryAutoplay();
+    }
+
+    tryAutoplay() {
+        const player = this.elements.musicPlayer;
+        player.volume = 0.3; // Start at 30% volume
+
+        player.play().then(() => {
+            this.data.settings.musicEnabled = true;
+            this.updateMusicButton();
+        }).catch(err => {
+            console.log('Autoplay blocked by browser. Click the music button to play.');
+            // Add a one-time click listener to start music on first interaction
+            const startOnInteraction = () => {
+                player.play().then(() => {
+                    this.data.settings.musicEnabled = true;
+                    this.updateMusicButton();
+                }).catch(() => { });
+                document.removeEventListener('click', startOnInteraction);
+            };
+            document.addEventListener('click', startOnInteraction);
+        });
     }
 
     save() {
