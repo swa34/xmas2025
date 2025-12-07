@@ -633,6 +633,116 @@ h3 {
     opacity: 0.7;
 }
 
+/* ================== COMPARISON TABLE ================== */
+
+.comparison-table-container {
+    background: white;
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+    box-shadow: var(--shadow-card);
+    overflow-x: auto;
+}
+
+.comparison-table-container.hidden {
+    display: none;
+}
+
+.comparison-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.95rem;
+}
+
+.comparison-table th,
+.comparison-table td {
+    padding: 1rem;
+    text-align: center;
+    border-bottom: 1px solid var(--color-gray);
+}
+
+.comparison-table thead th {
+    background: linear-gradient(135deg, var(--color-green) 0%, var(--color-green-dark) 100%);
+    color: white;
+    font-family: 'Mountains of Christmas', cursive;
+    font-size: 1.2rem;
+    position: sticky;
+    top: 0;
+}
+
+.comparison-table thead th:first-child {
+    border-radius: var(--radius-md) 0 0 0;
+}
+
+.comparison-table thead th:last-child {
+    border-radius: 0 var(--radius-md) 0 0;
+}
+
+.comparison-table .row-label {
+    background: #f8f8f8;
+    font-weight: 600;
+    color: var(--color-text);
+    text-align: left;
+    white-space: nowrap;
+}
+
+.comparison-table tbody tr:hover {
+    background: #fffdf5;
+}
+
+.comparison-table td {
+    vertical-align: top;
+}
+
+.comparison-table td .gift-name {
+    display: block;
+    font-weight: 600;
+    color: var(--color-text);
+    margin-bottom: 0.25rem;
+}
+
+.comparison-table td .gift-price {
+    display: block;
+    color: var(--color-green);
+    font-weight: 500;
+    font-size: 0.9rem;
+}
+
+.comparison-table td .gift-status {
+    display: block;
+    font-size: 0.8rem;
+    color: #888;
+    margin-top: 0.25rem;
+}
+
+.comparison-table .empty-cell {
+    color: #ccc;
+    font-style: italic;
+}
+
+.comparison-table tfoot .totals-row {
+    background: linear-gradient(135deg, var(--color-red) 0%, var(--color-red-dark) 100%);
+    color: white;
+}
+
+.comparison-table tfoot .totals-row td {
+    border-bottom: none;
+}
+
+.comparison-table tfoot .totals-row .row-label {
+    background: transparent;
+    color: white;
+}
+
+.comparison-table .total-cell strong {
+    font-size: 1.1rem;
+    display: block;
+}
+
+.comparison-table .total-cell .gift-count {
+    font-size: 0.8rem;
+    opacity: 0.8;
+}
+
 /* ================== PRINT STYLES ================== */
 
 @media print {

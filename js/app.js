@@ -36,6 +36,7 @@ class App {
         // DOM Elements
         this.elements = {
             grid: document.getElementById('children-grid'),
+            comparisonTable: document.getElementById('comparison-table'),
             childModal: document.getElementById('child-modal'),
             giftModal: document.getElementById('gift-modal'),
             childForm: document.getElementById('child-form'),
@@ -45,8 +46,11 @@ class App {
             snowContainer: document.querySelector('.snow-container'),
             snowToggle: document.getElementById('toggle-snow'),
             musicToggle: document.getElementById('toggle-music'),
-            musicPlayer: document.getElementById('christmas-music')
+            musicPlayer: document.getElementById('christmas-music'),
+            viewToggle: document.getElementById('toggle-view')
         };
+
+        this.isTableView = false; // Toggle between card and table view
 
         this.currentChildId = null; // For gift modal context
 
@@ -56,9 +60,9 @@ class App {
     init() {
         this.setupEventListeners();
         this.render();
-        if (this.data.settings.snowEnabled) {
-            this.startSnow();
-        }
+        // Always start snow on page load (festive by default!)
+        this.data.settings.snowEnabled = true;
+        this.startSnow();
         // Initialize music button state
         this.updateMusicButton();
 
@@ -158,6 +162,11 @@ class App {
         // Music Toggle
         this.elements.musicToggle.addEventListener('click', () => {
             this.toggleMusic();
+        });
+
+        // View Toggle (Cards vs Table)
+        this.elements.viewToggle.addEventListener('click', () => {
+            this.toggleView();
         });
     }
 
@@ -434,6 +443,86 @@ class App {
             btn.classList.remove('playing');
             btn.title = 'Play Music';
         }
+    }
+
+    // --- View Toggle ---
+
+    toggleView() {
+        this.isTableView = !this.isTableView;
+        const btn = this.elements.viewToggle;
+        const icon = btn.querySelector('i');
+
+        if (this.isTableView) {
+            // Switch to table view
+            this.elements.grid.classList.add('hidden');
+            this.elements.comparisonTable.classList.remove('hidden');
+            icon.classList.remove('fa-table');
+            icon.classList.add('fa-th-large');
+            btn.title = 'Switch to Cards';
+            this.renderComparisonTable();
+        } else {
+            // Switch to card view
+            this.elements.grid.classList.remove('hidden');
+            this.elements.comparisonTable.classList.add('hidden');
+            icon.classList.remove('fa-th-large');
+            icon.classList.add('fa-table');
+            btn.title = 'Compare as Table';
+        }
+    }
+
+    renderComparisonTable() {
+        const container = this.elements.comparisonTable;
+
+        if (this.data.children.length === 0) {
+            container.innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-gift fa-3x"></i>
+                    <p>No children added yet. Start by adding one!</p>
+                </div>`;
+            return;
+        }
+
+        // Find the maximum number of gifts any child has
+        const maxGifts = Math.max(...this.data.children.map(c => c.gifts.length), 0);
+
+        // Build table header
+        let headerRow = '<tr><th class="row-label">Gift #</th>';
+        this.data.children.forEach(child => {
+            headerRow += `<th>${this.escape(child.name)}</th>`;
+        });
+        headerRow += '</tr>';
+
+        // Build gift rows
+        let giftRows = '';
+        for (let i = 0; i < maxGifts; i++) {
+            giftRows += `<tr><td class="row-label">Gift ${i + 1}</td>`;
+            this.data.children.forEach(child => {
+                const gift = child.gifts[i];
+                if (gift) {
+                    const statusIcon = gift.status === 'wrapped' ? '🎁' : (gift.status === 'purchased' ? '✓' : '○');
+                    giftRows += `<td><span class="gift-name">${this.escape(gift.name)}</span><span class="gift-price">$${gift.price.toFixed(2)}</span><span class="gift-status">${statusIcon}</span></td>`;
+                } else {
+                    giftRows += '<td class="empty-cell">—</td>';
+                }
+            });
+            giftRows += '</tr>';
+        }
+
+        // Build totals row
+        let totalsRow = '<tr class="totals-row"><td class="row-label"><strong>Total</strong></td>';
+        this.data.children.forEach(child => {
+            const total = child.gifts.reduce((sum, g) => sum + g.price, 0);
+            totalsRow += `<td class="total-cell"><strong>$${total.toFixed(2)}</strong><span class="gift-count">(${child.gifts.length} gifts)</span></td>`;
+        });
+        totalsRow += '</tr>';
+
+        container.innerHTML = `
+            <table class="comparison-table">
+                <thead>${headerRow}</thead>
+                <tbody>${giftRows}</tbody>
+                <tfoot>${totalsRow}</tfoot>
+            </table>
+        `;
     }
 }
 

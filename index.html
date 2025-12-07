@@ -39,6 +39,8 @@
     <header class="site-header">
         <h1><i class="fas fa-sleigh"></i> Christmas Gift Tracker</h1>
         <div class="header-controls">
+            <button id="toggle-view" class="icon-btn" aria-label="Toggle Table View" title="Compare as Table"><i
+                    class="fas fa-table"></i></button>
             <button id="toggle-music" class="icon-btn" aria-label="Toggle Music"><i class="fas fa-music"></i></button>
             <button id="toggle-snow" class="icon-btn" aria-label="Toggle Snow"><i class="fas fa-snowflake"></i></button>
             <button id="add-child-btn" class="primary-btn"><i class="fas fa-user-plus"></i> Add Child</button>
@@ -63,6 +65,11 @@
                 <i class="fas fa-gift fa-3x"></i>
                 <p>No children added yet. Start by adding one!</p>
             </div>
+        </div>
+
+        <!-- Comparison Table View (hidden by default) -->
+        <div id="comparison-table" class="comparison-table-container hidden">
+            <!-- Table will be rendered by JS -->
         </div>
     </main>
 
