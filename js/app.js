@@ -22,7 +22,8 @@ class Storage {
         return {
             children: [],
             settings: {
-                snowEnabled: true
+                snowEnabled: true,
+                musicEnabled: false
             }
         };
     }
@@ -42,7 +43,9 @@ class App {
             addChildBtn: document.getElementById('add-child-btn'),
             closeButtons: document.querySelectorAll('.close-modal'),
             snowContainer: document.querySelector('.snow-container'),
-            snowToggle: document.getElementById('toggle-snow')
+            snowToggle: document.getElementById('toggle-snow'),
+            musicToggle: document.getElementById('toggle-music'),
+            musicPlayer: document.getElementById('christmas-music')
         };
 
         this.currentChildId = null; // For gift modal context
@@ -56,6 +59,8 @@ class App {
         if (this.data.settings.snowEnabled) {
             this.startSnow();
         }
+        // Initialize music button state
+        this.updateMusicButton();
     }
 
     save() {
@@ -124,6 +129,11 @@ class App {
             } else {
                 this.stopSnow();
             }
+        });
+
+        // Music Toggle
+        this.elements.musicToggle.addEventListener('click', () => {
+            this.toggleMusic();
         });
     }
 
@@ -362,6 +372,44 @@ class App {
     stopSnow() {
         clearInterval(this.snowInterval);
         this.elements.snowContainer.innerHTML = '';
+    }
+
+    // --- Music Controls ---
+
+    toggleMusic() {
+        const player = this.elements.musicPlayer;
+        if (player.paused) {
+            player.play().then(() => {
+                this.data.settings.musicEnabled = true;
+                this.save();
+                this.updateMusicButton();
+            }).catch(err => {
+                console.log('Autoplay blocked, user interaction required:', err);
+            });
+        } else {
+            player.pause();
+            this.data.settings.musicEnabled = false;
+            this.save();
+            this.updateMusicButton();
+        }
+    }
+
+    updateMusicButton() {
+        const btn = this.elements.musicToggle;
+        const player = this.elements.musicPlayer;
+        const icon = btn.querySelector('i');
+
+        if (player && !player.paused) {
+            icon.classList.remove('fa-music');
+            icon.classList.add('fa-pause');
+            btn.classList.add('playing');
+            btn.title = 'Pause Music';
+        } else {
+            icon.classList.remove('fa-pause');
+            icon.classList.add('fa-music');
+            btn.classList.remove('playing');
+            btn.title = 'Play Music';
+        }
     }
 }
 

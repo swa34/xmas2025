@@ -39,9 +39,20 @@
     <header class="site-header">
         <h1><i class="fas fa-sleigh"></i> Christmas Gift Tracker</h1>
         <div class="header-controls">
+            <button id="toggle-music" class="icon-btn" aria-label="Toggle Music"><i class="fas fa-music"></i></button>
             <button id="toggle-snow" class="icon-btn" aria-label="Toggle Snow"><i class="fas fa-snowflake"></i></button>
             <button id="add-child-btn" class="primary-btn"><i class="fas fa-user-plus"></i> Add Child</button>
         </div>
+
+        <!-- Christmas Background Music -->
+        <audio id="christmas-music" loop preload="auto">
+            <!-- Option 1: Use your own MP3 file (place in a 'media' folder) -->
+            <!-- <source src="media/christmas-music.mp3" type="audio/mpeg"> -->
+
+            <!-- Option 2: Royalty-free Christmas music stream -->
+            <source src="https://stream.zeno.fm/0r0xa792kwzuv" type="audio/mpeg">
+            Your browser does not support the audio element.
+        </audio>
     </header>
 
     <main class="dashboard">

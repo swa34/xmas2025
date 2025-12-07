@@ -46,6 +46,7 @@
         transform: translateY(-10vh) rotate(0deg);
         opacity: 0.8;
     }
+
     100% {
         transform: translateY(100vh) rotate(360deg);
         opacity: 0;
@@ -59,8 +60,15 @@
         transform: translateY(0) scale(0.8);
         opacity: 0;
     }
-    10% { opacity: 1; }
-    90% { opacity: 1; }
+
+    10% {
+        opacity: 1;
+    }
+
+    90% {
+        opacity: 1;
+    }
+
     100% {
         left: 120%;
         transform: translateY(-50px) scale(0.8);
@@ -70,10 +78,13 @@
 
 /* Twinkle Lights */
 @keyframes twinkle {
-    0%, 100% {
+
+    0%,
+    100% {
         opacity: 1;
         box-shadow: 0 0 10px var(--color-gold);
     }
+
     50% {
         opacity: 0.5;
         box-shadow: 0 0 2px var(--color-gold);
@@ -82,9 +93,17 @@
 
 /* Pulse Glow */
 @keyframes pulseGlow {
-    0% { box-shadow: 0 0 0 0 rgba(212, 36, 38, 0.7); }
-    70% { box-shadow: 0 0 0 10px rgba(212, 36, 38, 0); }
-    100% { box-shadow: 0 0 0 0 rgba(212, 36, 38, 0); }
+    0% {
+        box-shadow: 0 0 0 0 rgba(212, 36, 38, 0.7);
+    }
+
+    70% {
+        box-shadow: 0 0 0 10px rgba(212, 36, 38, 0);
+    }
+
+    100% {
+        box-shadow: 0 0 0 0 rgba(212, 36, 38, 0);
+    }
 }
 
 /* Card Entry */
@@ -93,6 +112,7 @@
         opacity: 0;
         transform: translateY(20px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
@@ -105,10 +125,12 @@
         transform: rotateX(-90deg);
         opacity: 0;
     }
+
     70% {
         transform: rotateX(20deg);
         opacity: 0.8;
     }
+
     100% {
         transform: rotateX(0deg);
         opacity: 1;
@@ -116,8 +138,13 @@
 }
 
 @keyframes fall {
-    0% { transform: translateY(-10vh); }
-    100% { transform: translateY(110vh); }
+    0% {
+        transform: translateY(-10vh);
+    }
+
+    100% {
+        transform: translateY(110vh);
+    }
 }
 
 body {
@@ -191,6 +218,13 @@ h3 {
 .icon-btn:hover {
     border-color: var(--color-green);
     color: var(--color-green);
+}
+
+/* Music button active state */
+.icon-btn.playing {
+    border-color: var(--color-red);
+    color: var(--color-red);
+    animation: pulseGlow 2s infinite;
 }
 
 .dashboard {
@@ -461,7 +495,7 @@ h3 {
     padding: 10px 0;
     pointer-events: none;
     z-index: 50;
-    background: linear-gradient(to bottom, rgba(0,0,0,0.1), transparent);
+    background: linear-gradient(to bottom, rgba(0, 0, 0, 0.1), transparent);
 }
 
 .christmas-lights li {
@@ -504,10 +538,21 @@ h3 {
     animation: fadeUp 0.5s ease-out backwards;
 }
 
-.child-card:nth-child(1) { animation-delay: 0.1s; }
-.child-card:nth-child(2) { animation-delay: 0.2s; }
-.child-card:nth-child(3) { animation-delay: 0.3s; }
-.child-card:nth-child(4) { animation-delay: 0.4s; }
+.child-card:nth-child(1) {
+    animation-delay: 0.1s;
+}
+
+.child-card:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.child-card:nth-child(3) {
+    animation-delay: 0.3s;
+}
+
+.child-card:nth-child(4) {
+    animation-delay: 0.4s;
+}
 
 /* ================== SUMMARY CARD ================== */
 
@@ -539,7 +584,7 @@ h3 {
 }
 
 .balance-badge {
-    background: rgba(255,255,255,0.2);
+    background: rgba(255, 255, 255, 0.2);
     padding: 0.4rem 0.8rem;
     border-radius: 20px;
     font-size: 0.85rem;
@@ -571,14 +616,14 @@ h3 {
     flex-wrap: wrap;
     gap: 1rem;
     padding-top: 1rem;
-    border-top: 1px solid rgba(255,255,255,0.2);
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .breakdown-item {
     display: flex;
     gap: 0.5rem;
     align-items: center;
-    background: rgba(255,255,255,0.1);
+    background: rgba(255, 255, 255, 0.1);
     padding: 0.4rem 0.8rem;
     border-radius: 8px;
 }

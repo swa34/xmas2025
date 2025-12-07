@@ -24,3 +24,6 @@ npm-debug.log*
 # OS files
 Thumbs.db
 Desktop.ini
+.claude/settings.local.json
+nul
+repomix-output.xml
