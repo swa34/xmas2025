@@ -1,0 +1,24 @@
+{
+    "gifts": [
+        {
+            "id": 1,
+            "name": "Lego Star Wars X-Wing",
+            "recipient": "Timmy",
+            "price": 49.99,
+            "status": "purchased",
+            "priority": "high",
+            "notes": "Found on sale!"
+        },
+        {
+            "id": 2,
+            "name": "Cozy Scarf",
+            "recipient": "Mom",
+            "price": 25.00,
+            "status": "planned",
+            "priority": "medium",
+            "notes": "Red or Green"
+        }
+    ],
+    "budget": 500,
+    "spent": 49.99
+}

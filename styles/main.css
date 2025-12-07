@@ -1,0 +1,313 @@
+:root {
+    --color-red: #D42426;
+    --color-green: #165B33;
+    --color-green-dark: #0f4024;
+    --color-white: #ffffff;
+    --color-snow: #F8F8F8;
+    --color-gold: #E4C988;
+    --color-text: #2c3e50;
+    --color-gray: #e0e0e0;
+    --shadow-card: 0 4px 6px rgba(0, 0, 0, 0.1);
+    --radius-md: 12px;
+    --radius-lg: 20px;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--color-snow);
+    color: var(--color-text);
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+h1,
+h2,
+h3 {
+    font-family: 'Mountains of Christmas', cursive;
+    color: var(--color-red);
+}
+
+.site-header {
+    background: var(--color-white);
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.site-header h1 {
+    font-size: 2.5rem;
+    margin: 0;
+}
+
+.header-controls {
+    display: flex;
+    gap: 1rem;
+}
+
+.primary-btn {
+    background: var(--color-red);
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 50px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.2s, background 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.primary-btn:hover {
+    background: #b51b1d;
+    transform: translateY(-2px);
+}
+
+.icon-btn {
+    background: none;
+    border: 2px solid var(--color-gray);
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    cursor: pointer;
+    font-size: 1.2rem;
+    color: var(--color-text);
+    transition: all 0.2s;
+}
+
+.icon-btn:hover {
+    border-color: var(--color-green);
+    color: var(--color-green);
+}
+
+.dashboard {
+    padding: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.grid-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 2rem;
+}
+
+.child-card {
+    background: white;
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+    box-shadow: var(--shadow-card);
+    transition: transform 0.2s;
+    border-top: 5px solid var(--color-green);
+    position: relative;
+    overflow: hidden;
+}
+
+.child-card:hover {
+    transform: translateY(-5px);
+}
+
+.child-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.child-name {
+    font-size: 1.8rem;
+    color: var(--color-green);
+}
+
+.budget-info {
+    font-size: 0.9rem;
+    color: #666;
+    margin-bottom: 0.5rem;
+    display: flex;
+    justify-content: space-between;
+}
+
+.progress-bar-bg {
+    background: var(--color-gray);
+    height: 10px;
+    border-radius: 5px;
+    overflow: hidden;
+    margin-bottom: 1.5rem;
+}
+
+.progress-bar-fill {
+    background: var(--color-red);
+    height: 100%;
+    width: 0%;
+    transition: width 0.5s ease;
+}
+
+.gifts-list {
+    list-style: none;
+    margin-bottom: 1.5rem;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+/* Individual Gift Item Styling */
+.gift-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem;
+    background: #fcfcfc;
+    border: 1px solid #f0f0f0;
+    border-radius: 8px;
+    margin-bottom: 0.5rem;
+    transition: all 0.2s;
+}
+
+.gift-item:hover {
+    border-color: var(--color-gold);
+    background: #fffdf5;
+}
+
+.gift-details {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.gift-price {
+    font-weight: 600;
+    color: var(--color-green);
+}
+
+.gift-status-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #ccc;
+    font-size: 1.1rem;
+    transition: color 0.2s;
+}
+
+.gift-status-btn.checked {
+    color: var(--color-green);
+}
+
+.add-gift-btn {
+    width: 100%;
+    padding: 0.8rem;
+    background: white;
+    border: 2px dashed var(--color-gray);
+    border-radius: var(--radius-md);
+    color: #888;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.2s;
+}
+
+.add-gift-btn:hover {
+    border-color: var(--color-green);
+    color: var(--color-green);
+    background: #f0f9f4;
+}
+
+/* Modal Styles */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    backdrop-filter: blur(5px);
+}
+
+.modal.hidden {
+    display: none;
+}
+
+.modal-content {
+    background: white;
+    padding: 2rem;
+    border-radius: var(--radius-lg);
+    width: 100%;
+    max-width: 400px;
+    animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(20px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: var(--color-text);
+}
+
+.form-group input {
+    width: 100%;
+    padding: 0.8rem;
+    border: 2px solid var(--color-gray);
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 1rem;
+}
+
+.form-group input:focus {
+    border-color: var(--color-red);
+    outline: none;
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+}
+
+.cancel-btn {
+    background: none;
+    border: none;
+    color: #666;
+    cursor: pointer;
+    font-weight: 600;
+    padding: 0.75rem 1rem;
+}
+
+.empty-state {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 4rem;
+    color: #aaa;
+}
+
+.empty-state i {
+    margin-bottom: 1rem;
+    color: var(--color-gray);
+}
