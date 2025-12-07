@@ -27,3 +27,6 @@ Desktop.ini
 .claude/settings.local.json
 nul
 repomix-output.xml
+.firebaserc
+firebase.json
+.firebase/hosting..cache
