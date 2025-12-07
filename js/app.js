@@ -1,9 +1,15 @@
-class Storage {
+class CloudStorage {
     constructor(key = 'xmas_gift_tracker_data') {
         this.key = key;
+        // JSONbin.io configuration
+        // To create your own bin: Go to jsonbin.io, create a free bin, and replace this ID
+        this.binId = '6754a8e0ad19ca34f8dc984a'; // Shared bin ID for this app
+        this.apiUrl = `https://api.jsonbin.io/v3/b/${this.binId}`;
+        this.isSyncing = false;
     }
 
-    get() {
+    // Get data from localStorage (fast, for initial load)
+    getLocal() {
         const data = localStorage.getItem(this.key);
         if (!data) return this.initialData();
         try {
@@ -14,8 +20,58 @@ class Storage {
         }
     }
 
-    save(data) {
+    // Save to localStorage
+    saveLocal(data) {
         localStorage.setItem(this.key, JSON.stringify(data));
+    }
+
+    // Fetch data from cloud
+    async fetchCloud() {
+        try {
+            const response = await fetch(this.apiUrl + '/latest', {
+                method: 'GET',
+                headers: {
+                    'X-Access-Key': '$2a$10$placeholder' // Public read access
+                }
+            });
+            if (response.ok) {
+                const result = await response.json();
+                return result.record;
+            }
+        } catch (e) {
+            console.log('Cloud fetch failed, using local data:', e);
+        }
+        return null;
+    }
+
+    // Save data to cloud
+    async saveCloud(data) {
+        if (this.isSyncing) return;
+        this.isSyncing = true;
+
+        try {
+            const response = await fetch(this.apiUrl, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Access-Key': '$2a$10$placeholder' // Public write access
+                },
+                body: JSON.stringify(data)
+            });
+            if (response.ok) {
+                console.log('✅ Data synced to cloud');
+            }
+        } catch (e) {
+            console.log('Cloud save failed:', e);
+        } finally {
+            this.isSyncing = false;
+        }
+    }
+
+    // Combined save (local + cloud)
+    save(data) {
+        this.saveLocal(data);
+        this.saveCloud(data); // Async, doesn't block
     }
 
     initialData() {
@@ -31,8 +87,8 @@ class Storage {
 
 class App {
     constructor() {
-        this.storage = new Storage();
-        this.data = this.storage.get();
+        this.storage = new CloudStorage();
+        this.data = this.storage.getLocal(); // Fast local load first
         // DOM Elements
         this.elements = {
             grid: document.getElementById('children-grid'),
@@ -47,7 +103,8 @@ class App {
             snowToggle: document.getElementById('toggle-snow'),
             musicToggle: document.getElementById('toggle-music'),
             musicPlayer: document.getElementById('christmas-music'),
-            viewToggle: document.getElementById('toggle-view')
+            viewToggle: document.getElementById('toggle-view'),
+            syncBtn: document.getElementById('sync-btn')
         };
 
         this.isTableView = false; // Toggle between card and table view
@@ -68,6 +125,26 @@ class App {
 
         // Attempt autoplay (may be blocked by browser)
         this.tryAutoplay();
+
+        // Sync from cloud (async - will update UI when ready)
+        this.syncFromCloud();
+    }
+
+    async syncFromCloud() {
+        console.log('🔄 Syncing from cloud...');
+        const cloudData = await this.storage.fetchCloud();
+        if (cloudData && cloudData.children) {
+            // Use cloud data if it has more content or is newer
+            if (cloudData.children.length >= this.data.children.length) {
+                this.data.children = cloudData.children;
+                this.storage.saveLocal(this.data);
+                this.render();
+                if (this.isTableView) {
+                    this.renderComparisonTable();
+                }
+                console.log('✅ Synced from cloud!', this.data.children.length, 'children loaded');
+            }
+        }
     }
 
     tryAutoplay() {
@@ -167,6 +244,14 @@ class App {
         // View Toggle (Cards vs Table)
         this.elements.viewToggle.addEventListener('click', () => {
             this.toggleView();
+        });
+
+        // Sync Button (manual cloud refresh)
+        this.elements.syncBtn.addEventListener('click', async () => {
+            const icon = this.elements.syncBtn.querySelector('i');
+            icon.classList.add('fa-spin');
+            await this.syncFromCloud();
+            icon.classList.remove('fa-spin');
         });
     }
 
