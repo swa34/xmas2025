@@ -138,20 +138,7 @@ h3 {
     justify-content: space-between;
 }
 
-.progress-bar-bg {
-    background: var(--color-gray);
-    height: 10px;
-    border-radius: 5px;
-    overflow: hidden;
-    margin-bottom: 1.5rem;
-}
 
-.progress-bar-fill {
-    background: var(--color-red);
-    height: 100%;
-    width: 0%;
-    transition: width 0.5s ease;
-}
 
 .gifts-list {
     list-style: none;

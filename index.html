@@ -26,6 +26,10 @@
     </header>
 
     <main class="dashboard">
+        <div id="dashboard-summary" class="summary-container hidden">
+            <!-- Summary stats injected by JS -->
+        </div>
+
         <div id="children-grid" class="grid-container">
             <!-- Children cards will be rendered here -->
             <div class="empty-state">
@@ -44,10 +48,7 @@
                     <label for="child-name">Name</label>
                     <input type="text" id="child-name" required placeholder="e.g. Timmy">
                 </div>
-                <div class="form-group">
-                    <label for="child-budget">Budget ($)</label>
-                    <input type="number" id="child-budget" required min="0" step="10">
-                </div>
+
                 <div class="modal-actions">
                     <button type="button" class="cancel-btn close-modal">Cancel</button>
                     <button type="submit" class="primary-btn">Save</button>

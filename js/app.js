@@ -131,12 +131,10 @@ class App {
 
     addChild() {
         const name = document.getElementById('child-name').value;
-        const budget = parseFloat(document.getElementById('child-budget').value);
 
         const newChild = {
             id: crypto.randomUUID(),
             name,
-            budget,
             gifts: []
         };
 
@@ -229,10 +227,14 @@ class App {
             return;
         }
 
+        if (this.data.children.length > 0) {
+            this.renderSummary();
+        } else {
+            document.getElementById('dashboard-summary').classList.add('hidden');
+        }
+
         grid.innerHTML = this.data.children.map(child => {
             const totalSpent = child.gifts.reduce((sum, g) => sum + g.price, 0);
-            const progress = (totalSpent / child.budget) * 100;
-            const progressColor = progress > 100 ? '#D42426' : '#165B33';
 
             return `
             <div class="child-card" data-id="${child.id}">
@@ -242,13 +244,9 @@ class App {
                 </div>
                 
                 <div class="budget-info">
-                    <span>Spent: $${totalSpent.toFixed(2)}</span>
-                    <span>Budget: $${child.budget.toFixed(2)}</span>
+                    <span>Total Spent: $${totalSpent.toFixed(2)}</span>
                 </div>
-                
-                <div class="progress-bar-bg">
-                    <div class="progress-bar-fill" style="width: ${Math.min(progress, 100)}%; background-color: ${progressColor}"></div>
-                </div>
+
 
                 <ul class="gifts-list">
                     ${child.gifts.map(gift => `
@@ -270,6 +268,71 @@ class App {
             </div>
             `;
         }).join('');
+    }
+
+    renderSummary() {
+        const container = document.getElementById('dashboard-summary');
+        container.classList.remove('hidden');
+
+        // Calculate stats
+        const childStats = this.data.children.map(c => ({
+            name: c.name,
+            totalSpent: c.gifts.reduce((sum, g) => sum + g.price, 0),
+            giftCount: c.gifts.length
+        }));
+
+        const totalSpentAll = childStats.reduce((sum, c) => sum + c.totalSpent, 0);
+        const totalGiftsAll = childStats.reduce((sum, c) => sum + c.giftCount, 0);
+
+        // Determine balance
+        // If more than 1 child, check max diff
+        let isBalanced = true;
+        let balanceMsg = "Only one child, easy to balance!";
+
+        if (childStats.length > 1) {
+            const spends = childStats.map(c => c.totalSpent);
+            const max = Math.max(...spends);
+            const min = Math.min(...spends);
+            const diff = max - min;
+
+            if (diff <= 10) {
+                isBalanced = true;
+                balanceMsg = "Nice work! Budgets are balanced within $10. 🎄";
+            } else {
+                isBalanced = false;
+                balanceMsg = `Budgets vary by $${diff.toFixed(2)}. Time to even it out!`;
+            }
+        }
+
+        const balanceClass = isBalanced ? 'balanced-budget' : 'imbalanced-budget';
+
+        container.className = `summary-card ${balanceClass}`;
+
+        container.innerHTML = `
+            <div class="summary-header">
+                <h2><i class="fas fa-chart-pie"></i> Gift Summary</h2>
+                <div class="balance-badge">${balanceMsg}</div>
+            </div>
+            <div class="summary-stats-grid">
+                <div class="stat-main">
+                    <div class="stat-val">$${totalSpentAll.toFixed(2)}</div>
+                    <div class="stat-label">Total Spent</div>
+                </div>
+                 <div class="stat-main">
+                    <div class="stat-val">${totalGiftsAll}</div>
+                    <div class="stat-label">Total Gifts</div>
+                </div>
+            </div>
+            <div class="child-breakdown">
+                ${childStats.map(c => `
+                    <div class="breakdown-item">
+                        <span>${this.escape(c.name)}</span>
+                        <strong>$${c.totalSpent.toFixed(2)}</strong>
+                        <span class="text-small">(${c.giftCount} gifts)</span>
+                    </div>
+                `).join('')}
+            </div>
+        `;
     }
 
     escape(str) {
