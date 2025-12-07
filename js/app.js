@@ -1,16 +1,26 @@
-class CloudStorage {
-    constructor(key = 'xmas_gift_tracker_data') {
-        this.key = key;
-        // JSONbin.io configuration
-        // To create your own bin: Go to jsonbin.io, create a free bin, and replace this ID
-        this.binId = '6754a8e0ad19ca34f8dc984a'; // Shared bin ID for this app
-        this.apiUrl = `https://api.jsonbin.io/v3/b/${this.binId}`;
-        this.isSyncing = false;
+// FirestoreStorage - Real-time sync with Cloud Firestore
+class FirestoreStorage {
+    constructor() {
+        this.localKey = 'xmas_gift_tracker_data';
+        this.db = null;
+        this.unsubscribe = null;
+        this.onDataChange = null; // Callback for real-time updates
+    }
+
+    // Initialize Firestore connection
+    async init() {
+        if (window.firebaseDB) {
+            this.db = window.firebaseDB;
+            this.utils = window.firebaseUtils;
+            console.log('🔥 Firebase connected!');
+            return true;
+        }
+        return false;
     }
 
     // Get data from localStorage (fast, for initial load)
     getLocal() {
-        const data = localStorage.getItem(this.key);
+        const data = localStorage.getItem(this.localKey);
         if (!data) return this.initialData();
         try {
             return JSON.parse(data);
@@ -22,56 +32,78 @@ class CloudStorage {
 
     // Save to localStorage
     saveLocal(data) {
-        localStorage.setItem(this.key, JSON.stringify(data));
+        localStorage.setItem(this.localKey, JSON.stringify(data));
     }
 
-    // Fetch data from cloud
-    async fetchCloud() {
-        try {
-            const response = await fetch(this.apiUrl + '/latest', {
-                method: 'GET',
-                headers: {
-                    'X-Access-Key': '$2a$10$placeholder' // Public read access
-                }
+    // Start listening for real-time updates
+    startListening(callback) {
+        if (!this.db) return;
+
+        this.onDataChange = callback;
+        const { collection, onSnapshot } = this.utils;
+        const childrenRef = collection(this.db, 'children');
+
+        this.unsubscribe = onSnapshot(childrenRef, (snapshot) => {
+            const children = [];
+            snapshot.forEach((doc) => {
+                children.push({ id: doc.id, ...doc.data() });
             });
-            if (response.ok) {
-                const result = await response.json();
-                return result.record;
+
+            // Sort by createdAt
+            children.sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0));
+
+            console.log('📥 Real-time update:', children.length, 'children');
+            if (this.onDataChange) {
+                this.onDataChange(children);
             }
-        } catch (e) {
-            console.log('Cloud fetch failed, using local data:', e);
-        }
-        return null;
+        }, (error) => {
+            console.error('Firestore listen error:', error);
+        });
     }
 
-    // Save data to cloud
-    async saveCloud(data) {
-        if (this.isSyncing) return;
-        this.isSyncing = true;
+    // Add a new child
+    async addChild(child) {
+        if (!this.db) return;
+        const { doc, setDoc } = this.utils;
 
-        try {
-            const response = await fetch(this.apiUrl, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-Access-Key': '$2a$10$placeholder' // Public write access
-                },
-                body: JSON.stringify(data)
-            });
-            if (response.ok) {
-                console.log('✅ Data synced to cloud');
-            }
-        } catch (e) {
-            console.log('Cloud save failed:', e);
-        } finally {
-            this.isSyncing = false;
-        }
+        const childData = {
+            name: child.name,
+            gifts: child.gifts || [],
+            createdAt: Date.now()
+        };
+
+        await setDoc(doc(this.db, 'children', child.id), childData);
+        console.log('✅ Child added to Firestore');
     }
 
-    // Combined save (local + cloud)
+    // Update a child (including gifts)
+    async updateChild(child) {
+        if (!this.db) return;
+        const { doc, setDoc } = this.utils;
+
+        const childData = {
+            name: child.name,
+            gifts: child.gifts || [],
+            createdAt: child.createdAt || Date.now()
+        };
+
+        await setDoc(doc(this.db, 'children', child.id), childData);
+        console.log('✅ Child updated in Firestore');
+    }
+
+    // Delete a child
+    async deleteChild(childId) {
+        if (!this.db) return;
+        const { doc, deleteDoc } = this.utils;
+
+        await deleteDoc(doc(this.db, 'children', childId));
+        console.log('🗑️ Child deleted from Firestore');
+    }
+
+    // Save all data (for backward compatibility)
     save(data) {
         this.saveLocal(data);
-        this.saveCloud(data); // Async, doesn't block
+        // Individual operations handle Firestore saves
     }
 
     initialData() {
@@ -83,11 +115,18 @@ class CloudStorage {
             }
         };
     }
+
+    // Stop listening when done
+    stopListening() {
+        if (this.unsubscribe) {
+            this.unsubscribe();
+        }
+    }
 }
 
 class App {
     constructor() {
-        this.storage = new CloudStorage();
+        this.storage = new FirestoreStorage();
         this.data = this.storage.getLocal(); // Fast local load first
         // DOM Elements
         this.elements = {
@@ -114,7 +153,7 @@ class App {
         this.init();
     }
 
-    init() {
+    async init() {
         this.setupEventListeners();
         this.render();
         // Always start snow on page load (festive by default!)
@@ -126,8 +165,38 @@ class App {
         // Attempt autoplay (may be blocked by browser)
         this.tryAutoplay();
 
-        // Sync from cloud (async - will update UI when ready)
-        this.syncFromCloud();
+        // Initialize Firebase and start real-time sync
+        await this.initFirebase();
+    }
+
+    async initFirebase() {
+        // Wait for Firebase to be ready (loaded from module script)
+        if (!window.firebaseDB) {
+            console.log('⏳ Waiting for Firebase...');
+            await new Promise(resolve => {
+                window.addEventListener('firebase-ready', resolve, { once: true });
+                // Timeout fallback
+                setTimeout(resolve, 3000);
+            });
+        }
+
+        const connected = await this.storage.init();
+        if (connected) {
+            // Start listening for real-time updates
+            this.storage.startListening((children) => {
+                this.data.children = children;
+                this.storage.saveLocal(this.data);
+                this.render();
+                if (this.isTableView) {
+                    this.renderComparisonTable();
+                }
+            });
+
+            // Update sync button to show connected
+            const icon = this.elements.syncBtn.querySelector('i');
+            icon.style.color = 'var(--color-green)';
+            this.elements.syncBtn.title = 'Connected - Real-time sync active';
+        }
     }
 
     async syncFromCloud() {
@@ -254,10 +323,9 @@ class App {
             icon.classList.remove('fa-spin');
         });
     }
-
     // --- Logic ---
 
-    addChild() {
+    async addChild() {
         const name = document.getElementById('child-name').value;
 
         const newChild = {
@@ -266,13 +334,14 @@ class App {
             gifts: []
         };
 
-        this.data.children.push(newChild);
-        this.save();
+        // Save to Firestore (will trigger real-time update to all clients)
+        await this.storage.addChild(newChild);
+
         this.closeModals();
         this.elements.childForm.reset();
     }
 
-    addGift() {
+    async addGift() {
         if (!this.currentChildId) return;
 
         const name = document.getElementById('gift-name').value;
@@ -288,7 +357,8 @@ class App {
         const child = this.data.children.find(c => c.id === this.currentChildId);
         if (child) {
             child.gifts.push(newGift);
-            this.save();
+            // Save to Firestore
+            await this.storage.updateChild(child);
 
             // Locate the new gift element to animate it
             setTimeout(() => {
@@ -308,21 +378,22 @@ class App {
         this.elements.giftForm.reset();
     }
 
-    deleteChild(id) {
+    async deleteChild(id) {
         if (confirm('Are you sure?')) {
-            this.data.children = this.data.children.filter(c => c.id !== id);
-            this.save();
+            // Delete from Firestore
+            await this.storage.deleteChild(id);
         }
     }
 
-    toggleGiftStatus(childId, giftId) {
+    async toggleGiftStatus(childId, giftId) {
         const child = this.data.children.find(c => c.id === childId);
         const gift = child.gifts.find(g => g.id === giftId);
         if (gift) {
             const statuses = ['idea', 'purchased', 'wrapped'];
             const idx = statuses.indexOf(gift.status);
             gift.status = statuses[(idx + 1) % statuses.length];
-            this.save();
+            // Save to Firestore
+            await this.storage.updateChild(child);
         }
     }
 

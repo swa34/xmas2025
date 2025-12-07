@@ -115,6 +115,32 @@
         </div>
     </div>
 
+    <!-- Firebase SDK -->
+    <script type="module">
+        // Firebase configuration for xmas-5d97a project
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getFirestore, collection, doc, setDoc, deleteDoc, onSnapshot, getDocs } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyD1gqYAHNB9GwMOapHDvWFNQdV-xEQ7RAY",
+            authDomain: "xmas-5d97a.firebaseapp.com",
+            projectId: "xmas-5d97a",
+            storageBucket: "xmas-5d97a.firebasestorage.app",
+            messagingSenderId: "558578141462",
+            appId: "1:558578141462:web:0dac2954bcfacae3f7a837"
+        };
+
+        // Initialize Firebase
+        const firebaseApp = initializeApp(firebaseConfig);
+        const db = getFirestore(firebaseApp);
+
+        // Make Firebase available globally for app.js
+        window.firebaseDB = db;
+        window.firebaseUtils = { collection, doc, setDoc, deleteDoc, onSnapshot, getDocs };
+
+        // Signal that Firebase is ready
+        window.dispatchEvent(new Event('firebase-ready'));
+    </script>
     <script src="js/app.js"></script>
 </body>
 
